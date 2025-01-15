@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 500px;
+      padding: 10px;
+    }
+    .section {
+      margin-bottom: 15px;
+    }
+    #domainTextArea {
+      width: 100%;
+      height: 200px;
+    }
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .tag-button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    #configFileInfo {
+      color: red;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <div id="configFileInfo">No configuration file loaded</div>
+    <input type="file" id="configFileInput" accept=".yaml">
+    <button id="deleteConfigBtn">Delete Config</button>
+    <button id="exportConfigBtn">Export</button>
+  </div>
+
+  <div class="section">
+    <textarea id="domainTextArea" placeholder="Recorded domains will appear here"></textarea>
+    <button id="convertBtn">Convert</button>
+  </div>
+
+  <div class="section">
+    <div id="tagContainer" class="tag-container"></div>
+  </div>
+
+  <button id="addToConfigBtn">Add to Configuration</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>
