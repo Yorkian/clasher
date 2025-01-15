@@ -42,15 +42,18 @@ A tool for managing network routing rules
 1. **初始设置**
    - 点击插件图标
    - 上传初始配置文件模板
+![上传自己的配置文件](https://github.com/user-attachments/assets/07315ce5-fdfc-4e54-82da-f7f4754499e1)
 
 2. **记录域名**
    - 正常浏览网页，插件会自动记录域名
    - 每个标签页独立记录
+![转换格式](https://github.com/user-attachments/assets/dedcbd15-7f05-4b81-89f8-5b65b84dea0a)
 
 3. **转换规则**
    - 点击"Convert"按钮转换记录的域名
    - 选择相应的分流标签
    - 点击"Add to Configuration"添加到配置文件
+![选择标签并更改配置文件](https://github.com/user-attachments/assets/3605fe9c-ee66-4ca2-910d-08d050931703)
 
 4. **导出配置**
    - 点击"Export"按钮导出更新后的配置文件
