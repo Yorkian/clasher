@@ -1,13 +1,60 @@
 let currentConfig = null;
 let selectedTag = '';
+let whitelist = new Set();
 
-// 配置白名单顶级域名
-const whitelist = new Set([
-  'google.com',
-  'googleapis.com',
-  'gstatic.com'
-  // 可以继续添加其他白名单域名
-]);
+// 初始化白名单
+async function initWhitelist() {
+  const result = await chrome.storage.local.get('whitelist');
+  whitelist = new Set(result.whitelist || [
+    'google.com',
+    'googleapis.com',
+    'gstatic.com',
+    'challenges.cloudflare.com',
+    'hm.baidu.com',
+    'doubleclick.net'
+  ]);
+  updateWhitelistDisplay();
+}
+
+// 更新白名单显示
+function updateWhitelistDisplay() {
+  const container = document.getElementById('whitelistContainer');
+  container.innerHTML = '';
+  
+  whitelist.forEach(domain => {
+    const item = document.createElement('div');
+    item.className = 'whitelist-item';
+    item.innerHTML = `
+      ${domain}
+      <span class="remove" data-domain="${domain}">×</span>
+    `;
+    container.appendChild(item);
+  });
+}
+
+// 保存白名单到存储
+async function saveWhitelist() {
+  await chrome.storage.local.set({
+    whitelist: Array.from(whitelist)
+  });
+}
+
+// 添加白名单域名
+async function addWhitelistDomain(domain) {
+  domain = domain.trim().toLowerCase();
+  if (!domain) return;
+  
+  whitelist.add(domain);
+  await saveWhitelist();
+  updateWhitelistDisplay();
+}
+
+// 移除白名单域名
+async function removeWhitelistDomain(domain) {
+  whitelist.delete(domain);
+  await saveWhitelist();
+  updateWhitelistDisplay();
+}
 
 // 检查域名是否在白名单中
 function isInWhitelist(domain, ruleType = '') {
@@ -46,7 +93,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const result = await chrome.storage.local.get(['configFile', 'configFileName']);
     if (result.configFile) {
       currentConfig = result.configFile;
-      console.log('Loaded config:', currentConfig.substring(0, 100)); // 调试日志
       updateConfigFileInfo(result.configFileName);
       updateTagButtons();
     }
@@ -54,12 +100,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 获取并显示记录的域名
     updateDomainList();
 
+    // 初始化白名单
+    await initWhitelist();
+
     // 设置事件监听器
     document.getElementById('configFileInput').addEventListener('change', handleConfigFileUpload);
     document.getElementById('deleteConfigBtn').addEventListener('click', deleteConfig);
     document.getElementById('exportConfigBtn').addEventListener('click', exportConfig);
     document.getElementById('convertBtn').addEventListener('click', convertDomains);
     document.getElementById('addToConfigBtn').addEventListener('click', addToConfig);
+
+    // 白名单显示/隐藏切换
+    document.getElementById('toggleWhitelist').addEventListener('click', () => {
+      const content = document.getElementById('whitelistContent');
+      content.style.display = content.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // 添加白名单域名
+    document.getElementById('addWhitelistDomain').addEventListener('click', async () => {
+      const input = document.getElementById('newWhitelistDomain');
+      await addWhitelistDomain(input.value);
+      input.value = '';
+    });
+
+    // 删除白名单域名
+    document.getElementById('whitelistContainer').addEventListener('click', async (e) => {
+      if (e.target.classList.contains('remove')) {
+        const domain = e.target.dataset.domain;
+        await removeWhitelistDomain(domain);
+      }
+    });
+
+    // 添加回车键添加域名功能
+    document.getElementById('newWhitelistDomain').addEventListener('keypress', async (e) => {
+      if (e.key === 'Enter') {
+        const input = e.target;
+        await addWhitelistDomain(input.value);
+        input.value = '';
+      }
+    });
   } catch (error) {
     console.error('Initialization error:', error);
   }
@@ -80,7 +159,6 @@ async function handleConfigFileUpload(event) {
     const reader = new FileReader();
     reader.onload = async (e) => {
       currentConfig = e.target.result;
-      console.log('Saving config:', currentConfig.substring(0, 100)); // 调试日志
       
       // 保存到 storage
       await chrome.storage.local.set({
@@ -88,6 +166,7 @@ async function handleConfigFileUpload(event) {
         configFileName: file.name
       });
       
+      // 更新界面
       updateConfigFileInfo(file.name);
       updateTagButtons();
     };
@@ -101,16 +180,24 @@ async function handleConfigFileUpload(event) {
 function updateConfigFileInfo(fileName = '') {
   try {
     const info = document.getElementById('configFileInfo');
+    const deleteBtn = document.getElementById('deleteConfigBtn');
+    const exportBtn = document.getElementById('exportConfigBtn');
+    const selectFileLabel = document.getElementById('selectFileLabel');
+
     if (currentConfig) {
-      info.innerHTML = fileName ? 'Current configuration file: ' + fileName : 'No file name available';
-      // 显示删除和导出按钮
-      document.getElementById('deleteConfigBtn').style.display = 'inline';
-      document.getElementById('exportConfigBtn').style.display = 'inline';
+      info.textContent = `正在编辑配置文件：${fileName}`;
+      info.className = 'config-info has-file';
+      // 显示删除和导出按钮，隐藏文件选择按钮
+      deleteBtn.style.display = 'inline-block';
+      exportBtn.style.display = 'inline-block';
+      selectFileLabel.style.display = 'none';
     } else {
-      info.innerHTML = 'No configuration file loaded';
-      // 隐藏删除和导出按钮
-      document.getElementById('deleteConfigBtn').style.display = 'none';
-      document.getElementById('exportConfigBtn').style.display = 'none';
+      info.textContent = '请上传配置文件';
+      info.className = 'config-info no-file';
+      // 隐藏删除和导出按钮，显示文件选择按钮
+      deleteBtn.style.display = 'none';
+      exportBtn.style.display = 'none';
+      selectFileLabel.style.display = 'inline-block';
     }
   } catch (error) {
     console.error('Update config info error:', error);
@@ -126,6 +213,7 @@ function updateTagButtons() {
     tagContainer.innerHTML = '';
 
     const proxyGroups = parseProxyGroups(currentConfig);
+
     proxyGroups.forEach(tag => {
       const button = document.createElement('button');
       button.textContent = tag;
@@ -323,7 +411,9 @@ async function addToConfig() {
       }
       
       // 检查当前行是否是域名规则
-      if (inRulesSection && (line.includes('DOMAIN-SUFFIX,') || line.includes('DOMAIN-KEYWORD,') || line.includes('DOMAIN,'))) {
+      if (inRulesSection && (line.includes('DOMAIN-SUFFIX,') || 
+          line.includes('DOMAIN-KEYWORD,') || 
+          line.includes('DOMAIN,'))) {
         const extracted = extractDomainFromRule(line);
         
         // 如果当前规则涉及白名单域名，保留原规则
@@ -357,30 +447,30 @@ async function addToConfig() {
 
     // 提供视觉反馈
     const addButton = document.getElementById('addToConfigBtn');
-    addButton.textContent = 'Added!';
+    const originalText = addButton.textContent;
+    addButton.textContent = '已添加！';
     setTimeout(() => {
-      addButton.textContent = 'Add to Configuration';
+      addButton.textContent = originalText;
     }, 1000);
   } catch (error) {
     console.error('Add to config error:', error);
   }
 }
-
-// 检查两条规则是否有相同效果
-function haveSameEffect(rule1, rule2) {
-  // 移除" - "前缀并分割规则
-  const [type1, domain1] = rule1.replace(/^\s*-\s*/, '').split(',');
-  const [type2, domain2] = rule2.replace(/^\s*-\s*/, '').split(',');
-
-  if (type1 === type2) return domain1 === domain2;
-
-  if (type1 === 'DOMAIN-KEYWORD' && type2 === 'DOMAIN-SUFFIX') {
-    return domain2.includes(domain1);
+  // 检查两条规则是否有相同效果
+  function haveSameEffect(rule1, rule2) {
+    // 移除" - "前缀并分割规则
+    const [type1, domain1] = rule1.replace(/^\s*-\s*/, '').split(',');
+    const [type2, domain2] = rule2.replace(/^\s*-\s*/, '').split(',');
+  
+    if (type1 === type2) return domain1 === domain2;
+  
+    if (type1 === 'DOMAIN-KEYWORD' && type2 === 'DOMAIN-SUFFIX') {
+      return domain2.includes(domain1);
+    }
+  
+    if (type1 === 'DOMAIN-SUFFIX' && type2 === 'DOMAIN-KEYWORD') {
+      return domain1.includes(domain2);
+    }
+  
+    return false;
   }
-
-  if (type1 === 'DOMAIN-SUFFIX' && type2 === 'DOMAIN-KEYWORD') {
-    return domain1.includes(domain2);
-  }
-
-  return false;
-}
