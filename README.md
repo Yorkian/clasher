@@ -65,7 +65,7 @@ A tool for managing network routing rules
 ![添加到配置文件](https://github.com/user-attachments/assets/6efdadbf-cf81-4ad2-be52-7998784944d6)
 
 5. **导出配置**
-   - 点击"Export"按钮导出更新后的配置文件
+   - 点击按钮导出更新后的配置文件
 
 ## 文件说明
 
