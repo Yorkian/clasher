@@ -3,59 +3,272 @@
 <head>
   <meta charset="UTF-8">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       width: 500px;
-      padding: 10px;
+      padding: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f5;
     }
-    .section {
-      margin-bottom: 15px;
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .config-info {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .config-info.no-file {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    .config-info.has-file {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .button {
+      padding: 4px 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .button-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .button-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .button-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .button-secondary:hover {
+      background-color: #545b62;
+    }
+
+    .button-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .button-danger:hover {
+      background-color: #c82333;
+    }
+
+    .textarea-container {
+      position: relative;
+      margin: 8px 0;
+    }
+
     #domainTextArea {
       width: 100%;
-      height: 200px;
+      height: 120px;
+      padding: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      resize: vertical;
     }
+
     .tag-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
+      gap: 6px;
+      margin-top: 8px;
     }
+
     .tag-button {
-      padding: 5px 10px;
-      border: none;
+      padding: 3px 6px;
+      border: 1px solid #007bff;
       border-radius: 3px;
+      background-color: white;
+      color: #007bff;
       cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
     }
-    .button-container {
+
+    .tag-button:hover, .tag-button.active {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .whitelist-section {
+      margin-top: 8px;
+    }
+
+    .whitelist-header {
       display: flex;
       justify-content: space-between;
-      margin-top: 10px;
+      align-items: center;
+      margin-bottom: 6px;
     }
-    #configFileInfo {
-      color: red;
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 10px;
+
+    .whitelist-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 6px 0;
+    }
+
+    .whitelist-item {
+      display: flex;
+      align-items: center;
+      padding: 3px 6px;
+      background-color: #e9ecef;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+
+    .whitelist-item .remove {
+      margin-left: 6px;
+      color: #dc3545;
+      cursor: pointer;
+    }
+
+    .whitelist-input {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    #newWhitelistDomain {
+      flex: 1;
+      padding: 4px;
+      border: 1px solid #ced4da;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 4px;
+      border-radius: 3px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+    }
+
+    #configFileInput {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="section">
-    <div id="configFileInfo">No configuration file loaded</div>
-    <input type="file" id="configFileInput" accept=".yaml">
-    <button id="deleteConfigBtn">Delete Config</button>
-    <button id="exportConfigBtn">Export</button>
+  <div class="card">
+    <div class="card-header">
+      <div class="config-info no-file" id="configFileInfo">请上传配置文件</div>
+      <div class="button-group">
+        <label for="configFileInput" id="selectFileLabel" class="button button-primary">选择文件</label>
+        <input type="file" id="configFileInput" accept=".yaml">
+        <button id="exportConfigBtn" class="button button-secondary" style="display: none;">导出配置</button>
+        <button id="deleteConfigBtn" class="button button-danger" style="display: none;">删除配置</button>
+      </div>
+    </div>
   </div>
 
-  <div class="section">
-    <textarea id="domainTextArea" placeholder="Recorded domains will appear here"></textarea>
-    <button id="convertBtn">Convert</button>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        域名记录
+        <div class="tooltip">?
+          <span class="tooltip-text">这里显示当前标签页访问的所有域名</span>
+        </div>
+      </div>
+      <button id="convertBtn" class="button button-primary">转换格式</button>
+    </div>
+    <div class="textarea-container">
+      <textarea id="domainTextArea" placeholder="记录的域名将显示在这里"></textarea>
+    </div>
   </div>
 
-  <div class="section">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        白名单管理
+        <div class="tooltip">?
+          <span class="tooltip-text">白名单中的域名规则不会被修改</span>
+        </div>
+      </div>
+      <button id="toggleWhitelist" class="button button-secondary">显示/隐藏</button>
+    </div>
+    <div id="whitelistContent" style="display: none;">
+      <div id="whitelistContainer" class="whitelist-container"></div>
+      <div class="whitelist-input">
+        <input type="text" id="newWhitelistDomain" placeholder="输入域名 (例如: google.com)">
+        <button id="addWhitelistDomain" class="button button-primary">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        分流标签
+        <div class="tooltip">?
+          <span class="tooltip-text">选择要添加的分流规则标签</span>
+        </div>
+      </div>
+    </div>
     <div id="tagContainer" class="tag-container"></div>
+    <button id="addToConfigBtn" class="button button-primary" style="margin-top: 8px; width: 100%;">添加到配置文件</button>
   </div>
-
-  <button id="addToConfigBtn">Add to Configuration</button>
 
   <script src="popup.js"></script>
 </body>
