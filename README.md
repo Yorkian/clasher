@@ -42,20 +42,29 @@ A tool for managing network routing rules
 1. **初始设置**
    - 点击插件图标
    - 上传初始配置文件模板
-![上传自己的配置文件](https://github.com/user-attachments/assets/07315ce5-fdfc-4e54-82da-f7f4754499e1)
+     
+![上传配置](https://github.com/user-attachments/assets/9069e732-3e2b-4679-8a77-85fe0fbe0c4e)
 
 2. **记录域名**
    - 正常浏览网页，插件会自动记录域名
    - 每个标签页独立记录
-![转换格式](https://github.com/user-attachments/assets/dedcbd15-7f05-4b81-89f8-5b65b84dea0a)
+     
+![转换](https://github.com/user-attachments/assets/6c8e31fb-4ac7-4183-90c0-20a0b40200bf)
 
-3. **转换规则**
-   - 点击"Convert"按钮转换记录的域名
+3. **编辑白名单**
+   - 点击"显示/隐藏"按钮查看白名单域名
+   - 增减相应域名
+     
+![修改白名单](https://github.com/user-attachments/assets/258f6363-94ea-4f99-8a1d-2573865f234f)
+
+4. **转换规则**
+   - 点击"转换格式"按钮转换记录的域名
    - 选择相应的分流标签
-   - 点击"Add to Configuration"添加到配置文件
-![选择标签并更改配置文件](https://github.com/user-attachments/assets/3605fe9c-ee66-4ca2-910d-08d050931703)
+   - 点击"添加到配置文件"
+     
+![添加到配置文件](https://github.com/user-attachments/assets/6efdadbf-cf81-4ad2-be52-7998784944d6)
 
-4. **导出配置**
+5. **导出配置**
    - 点击"Export"按钮导出更新后的配置文件
 
 ## 文件说明
