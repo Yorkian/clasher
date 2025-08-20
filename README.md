@@ -108,6 +108,10 @@ rules:
   - DOMAIN,sub.example.com,tag2
 ```
 
+## 在线安装
+
+[chrome应用商店](https://chromewebstore.google.com/detail/clasher/emdailkcipcildlogapfaefbcdchljep)
+
 ## 许可证
 
 [MIT License](LICENSE)
